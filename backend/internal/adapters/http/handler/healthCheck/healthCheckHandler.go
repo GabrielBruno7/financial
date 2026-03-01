@@ -8,11 +8,13 @@ import (
 
 type HealthCheckResponse struct {
 	Status string `json:"status"`
+	Message string `json:"message,omitempty"`
 }
 
 func HealthCheck(c *gin.Context) {
 	response := HealthCheckResponse{
-		Status: "Great changes begin with small steps.",
+		Status:  "ok",
+		Message: "Great changes begin with small steps.",
 	}
 
 	c.JSON(http.StatusOK, response)

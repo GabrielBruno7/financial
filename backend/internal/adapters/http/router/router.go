@@ -1,11 +1,8 @@
 package router
 
-import (
-	"github.com/gin-gonic/gin"
-
-	healthcheck "financial/internal/adapters/http/handler/healthCheck"
-)
+import "github.com/gin-gonic/gin"
 
 func RegisterRoutes(engine *gin.Engine) {
-	engine.GET("/health", healthcheck.HealthCheck)
+	registerHealthcheckRoutes(engine)
+	registerTransactionRoutes(engine)
 }
