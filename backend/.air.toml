@@ -6,9 +6,12 @@ tmp_dir = "tmp"
   cmd = "go build -o ./tmp/main ./cmd/api"
   bin = "./tmp/main"
   full_bin = "./tmp/main"
-  include_ext = ["go", "tpl", "tmpl", "html"]
-  exclude_dir = ["tmp", "vendor"]
-  delay = 200
+  include_ext = ["go"]
+  exclude_dir = ["tmp", "vendor", ".git"]
+  include_dir = ["cmd", "internal"]
+  delay = 1000
+  poll = true
+  poll_interval = 2000
 
 [log]
   time = true
