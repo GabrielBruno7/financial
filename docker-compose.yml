@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: financial-postgres
+    environment:
+      POSTGRES_DB: financial_db
+      POSTGRES_USER: financial_user
+      POSTGRES_PASSWORD: financial_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - financial-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U financial_user -d financial_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: financial-backend
+    ports:
+      - "9000:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - financial-network
+    restart: unless-stopped
+    environment:
+      - ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=financial_user
+      - DB_PASSWORD=financial_password
+      - DB_NAME=financial_db
+      - PORT=9000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  adminer:
+    image: adminer
+    container_name: financial-adminer
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    depends_on:
+      - postgres
+    networks:
+      - financial-network
+
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  financial-network:
+    driver: bridge

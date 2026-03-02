@@ -1,0 +1,46 @@
+# Ignore files and directories for Docker build optimization
+
+# Development files
+.env
+.env.local
+.env.development
+.env.production
+
+# Git
+.git
+.gitignore
+
+# Go specific
+*.log
+*.out
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Build artifacts
+tmp/
+build/
+dist/
+
+# Documentation
+README.md
+*.md
+docs/
+
+# Test files
+*_test.go
+testdata/
+
+# Docker files
+Dockerfile
+docker-compose*
+.dockerignore

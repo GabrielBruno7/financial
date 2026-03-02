@@ -20,3 +20,9 @@ coverage.out
 Thumbs.db
 
 tmp/
+
+*.log
+backup_*.sql
+
+docker-data/
+postgres-data/
