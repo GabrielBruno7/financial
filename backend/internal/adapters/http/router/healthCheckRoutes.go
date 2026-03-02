@@ -6,6 +6,6 @@ import (
 	healthcheck "financial/internal/adapters/http/handler/healthCheck"
 )
 
-func registerHealthcheckRoutes(engine *gin.Engine) {
+func registerHealthCheckRoutes(engine *gin.Engine) {
 	engine.GET("/health", healthcheck.HealthCheck)
 }
