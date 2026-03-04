@@ -1,18 +1,10 @@
 package transaction
 
 import (
-	"errors"
 	domain "financial/internal/core/domain/transaction"
 	"time"
 
 	"github.com/google/uuid"
-)
-
-var (
-	ErrDescriptionRequired    = errors.New("description is required")
-	ErrInvalidAmount          = errors.New("amount must be greater than zero")
-	ErrInvalidTransactionType = errors.New("transaction type must be income or expense")
-	ErrInvalidDate            = errors.New("invalid date")
 )
 
 type CreateTransactionInput struct {
@@ -33,17 +25,21 @@ func NewCreateTransactionUseCase(repo TransactionRepository) *CreateTransactionU
 }
 
 func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInput) (domain.Transaction, error) {
-	tx := domain.Transaction{
+	transaction := domain.Transaction{
 		ID:        uuid.NewString(),
 		Amount:    input.Amount,
 		Type:      domain.Type(input.Type),
 		CreatedAt: time.Now(),
 	}
 
-	created, err := uc.repo.Create(tx)
-	if err != nil {
-		return domain.Transaction{}, err
+	if err := transaction.Validate(); err != nil {
+		return transaction, err
 	}
 
-	return created, nil
+	transaction, err := uc.repo.Create(transaction)
+	if err != nil {
+		return transaction, err
+	}
+
+	return transaction, nil
 }
