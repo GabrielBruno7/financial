@@ -1,8 +1,8 @@
 package transaction
 
 import (
-	"net/http"
 	usecaseTransaction "financial/internal/core/usecase/transaction"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,6 +34,7 @@ func (h *CreateTransactionHandler) Handle(c *gin.Context) {
 	}
 
 	input := usecaseTransaction.CreateTransactionInput{
+		Name:   dto.Name,
 		Amount: dto.Amount,
 		Type:   dto.Type,
 	}
@@ -50,6 +51,6 @@ func (h *CreateTransactionHandler) Handle(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"transaction": transaction,
-		"message": "Transaction Created Successfully",
+		"message":     "Transaction Created Successfully",
 	})
 }

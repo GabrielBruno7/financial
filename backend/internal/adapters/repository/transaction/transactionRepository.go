@@ -2,6 +2,7 @@ package transaction
 
 import (
 	domain "financial/internal/core/domain/transaction"
+
 	"gorm.io/gorm"
 )
 
@@ -16,6 +17,7 @@ func NewTransactionRepository(db *gorm.DB) *TransactionRepository {
 func (r *TransactionRepository) Create(tx domain.Transaction) (domain.Transaction, error) {
 	model := TransactionModel{
 		ID:        tx.ID,
+		Name:      tx.Name,
 		Amount:    tx.Amount,
 		Type:      string(tx.Type),
 		CreatedAt: tx.CreatedAt,

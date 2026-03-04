@@ -8,6 +8,7 @@ import (
 )
 
 type CreateTransactionInput struct {
+	Name   string
 	Amount float64
 	Type   string
 }
@@ -27,6 +28,7 @@ func NewCreateTransactionUseCase(repo TransactionRepository) *CreateTransactionU
 func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInput) (domain.Transaction, error) {
 	transaction := domain.Transaction{
 		ID:        uuid.NewString(),
+		Name:      input.Name,
 		Amount:    input.Amount,
 		Type:      domain.Type(input.Type),
 		CreatedAt: time.Now(),
