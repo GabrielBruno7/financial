@@ -14,18 +14,53 @@ func NewTransactionRepository(db *gorm.DB) *TransactionRepository {
 	return &TransactionRepository{db: db}
 }
 
-func (r *TransactionRepository) Create(tx domain.Transaction) (domain.Transaction, error) {
-	model := TransactionModel{
-		ID:        tx.ID,
-		Name:      tx.Name,
-		Amount:    tx.Amount,
-		Type:      string(tx.Type),
-		CreatedAt: tx.CreatedAt,
-	}
+func (r *TransactionRepository) Create(transaction domain.Transaction) (domain.Transaction, error) {
+	query := `
+		INSERT INTO transactions (
+			id,
+			name,
+			amount,
+			type,
+			created_at
+		)
+		VALUES (?, ?, ?, ?, ?)
+	`
 
-	if err := r.db.Create(&model).Error; err != nil {
+	if err := r.db.Exec(query,
+		transaction.ID,
+		transaction.Name,
+		transaction.Amount,
+		string(transaction.Type),
+		transaction.CreatedAt,
+	).Error; err != nil {
 		return domain.Transaction{}, err
 	}
 
-	return tx, nil
+	return transaction, nil
+}
+
+func (r *TransactionRepository) List() ([]domain.Transaction, error) {
+	var models []TransactionModel
+
+	query := `
+		SELECT id, name, amount, type, created_at
+		FROM transactions
+		ORDER BY created_at DESC
+	`
+
+	if err := r.db.Raw(query).Scan(&models).Error; err != nil {
+		return nil, err
+	}
+
+	transactions := make([]domain.Transaction, len(models))
+	for i, model := range models {
+		transactions[i] = domain.Transaction{
+			ID:     model.ID,
+			Name:   model.Name,
+			Amount: model.Amount,
+			Type:   domain.Type(model.Type),
+		}
+	}
+
+	return transactions, nil
 }

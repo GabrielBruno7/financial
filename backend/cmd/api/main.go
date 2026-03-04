@@ -23,9 +23,13 @@ func main() {
 	createTransactionUseCase := usecaseTransaction.NewCreateTransactionUseCase(transactionRepository)
 	createTransactionHandler := transactionHandler.NewCreateTransactionHandler(createTransactionUseCase)
 
+	listTransactionsUseCase := usecaseTransaction.NewListTransactionsUseCase(transactionRepository)
+	listTransactionsHandler := transactionHandler.NewListTransactionsHandler(listTransactionsUseCase)
+
 	handlers := router.Handlers{
 		Transactions: router.TransactionHandlers{
 			Create: createTransactionHandler,
+			List:   listTransactionsHandler,
 		},
 	}
 

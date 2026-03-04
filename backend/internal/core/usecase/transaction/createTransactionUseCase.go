@@ -13,8 +13,10 @@ type CreateTransactionInput struct {
 	Type   string
 }
 
+//TODO: Passar essa interface para outro local.
 type TransactionRepository interface {
 	Create(tx domain.Transaction) (domain.Transaction, error)
+	List() ([]domain.Transaction, error)
 }
 
 type CreateTransactionUseCase struct {
