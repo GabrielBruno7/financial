@@ -1,13 +1,18 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import (
+	transactionHandler "financial/internal/adapters/http/handler/transaction"
 
-func registerTransactionRoutes(engine *gin.Engine) {
+	"github.com/gin-gonic/gin"
+)
+
+type TransactionHandlers struct {
+	Create *transactionHandler.CreateTransactionHandler
+}
+
+func registerTransactionRoutes(engine *gin.Engine, handlers TransactionHandlers) {
 	transactions := engine.Group("/transactions")
 	{
-		_ = transactions
-		// transactions.POST("", ...)
-		// transactions.GET("", ...)
-		// transactions.GET("/monthly-summary", ...)
+		transactions.POST("", handlers.Create.Handle)
 	}
 }
