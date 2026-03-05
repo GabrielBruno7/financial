@@ -39,7 +39,7 @@ func (h *CreateTransactionHandler) Handle(c *gin.Context) {
 		Type:   dto.Type,
 	}
 
-	transaction, err := h.useCase.Execute(input)
+	transactionOutput, err := h.useCase.Execute(input)
 
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, ErrorResponse{
@@ -50,7 +50,7 @@ func (h *CreateTransactionHandler) Handle(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"transaction": transaction,
-		"message":     "Transaction Created Successfully",
+		"transaction": transactionOutput.Transaction,
+		"message":     transactionOutput.Message,
 	})
 }

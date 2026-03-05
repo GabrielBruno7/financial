@@ -14,6 +14,11 @@ type CreateTransactionInput struct {
 	Type   string
 }
 
+type CreateTransactionOutput struct {
+	Transaction domain.Transaction
+	Message     string
+}
+
 type CreateTransactionUseCase struct {
 	repo persistencePort.TransactionRepositoryInterface
 }
@@ -22,10 +27,10 @@ func NewCreateTransactionUseCase(repo persistencePort.TransactionRepositoryInter
 	return &CreateTransactionUseCase{repo: repo}
 }
 
-func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInput) (domain.Transaction, error) {
+func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInput) (CreateTransactionOutput, error) {
 	loc, err := time.LoadLocation("America/Sao_Paulo")
 	if err != nil {
-		return domain.Transaction{}, err
+		return CreateTransactionOutput{}, err
 	}
 
 	transaction := domain.Transaction{
@@ -37,13 +42,16 @@ func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInput) (domai
 	}
 
 	if err := transaction.Validate(); err != nil {
-		return transaction, err
+		return CreateTransactionOutput{}, err
 	}
 
 	transaction, err = uc.repo.Create(transaction)
 	if err != nil {
-		return transaction, err
+		return CreateTransactionOutput{}, err
 	}
 
-	return transaction, nil
+	return CreateTransactionOutput{
+		Transaction: transaction,
+		Message:     "Transaction created successfully",
+	}, nil
 }
