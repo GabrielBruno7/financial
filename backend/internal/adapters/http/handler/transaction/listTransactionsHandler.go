@@ -21,7 +21,7 @@ func (h *ListTransactionsHandler) Handle(c *gin.Context) {
 	var dto ListTransactionDTO
 	if err := c.ShouldBindQuery(&dto); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid request body",
+			"message": "Invalid Query Parameters",
 			"details": err.Error(),
 		})
 		return
