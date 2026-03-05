@@ -2,6 +2,7 @@ package transaction
 
 import (
 	domain "financial/internal/core/domain/transaction"
+	"financial/internal/core/port/persistencePort"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,17 +14,11 @@ type CreateTransactionInput struct {
 	Type   string
 }
 
-//TODO: Passar essa interface para outro local.
-type TransactionRepository interface {
-	Create(tx domain.Transaction) (domain.Transaction, error)
-	List() ([]domain.Transaction, error)
-}
-
 type CreateTransactionUseCase struct {
-	repo TransactionRepository
+	repo persistencePort.TransactionRepositoryInterface
 }
 
-func NewCreateTransactionUseCase(repo TransactionRepository) *CreateTransactionUseCase {
+func NewCreateTransactionUseCase(repo persistencePort.TransactionRepositoryInterface) *CreateTransactionUseCase {
 	return &CreateTransactionUseCase{repo: repo}
 }
 

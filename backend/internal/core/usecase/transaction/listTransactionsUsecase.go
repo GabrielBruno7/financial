@@ -2,13 +2,14 @@ package transaction
 
 import (
 	domain "financial/internal/core/domain/transaction"
+	"financial/internal/core/port/persistencePort"
 )
 
 type ListTransactionsUseCase struct {
-	repo TransactionRepository
+	repo persistencePort.TransactionRepositoryInterface
 }
 
-func NewListTransactionsUseCase(repo TransactionRepository) *ListTransactionsUseCase {
+func NewListTransactionsUseCase(repo persistencePort.TransactionRepositoryInterface) *ListTransactionsUseCase {
 	return &ListTransactionsUseCase{repo: repo}
 }
 
