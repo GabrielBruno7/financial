@@ -23,19 +23,24 @@ func NewCreateTransactionUseCase(repo persistencePort.TransactionRepositoryInter
 }
 
 func (uc *CreateTransactionUseCase) Execute(input CreateTransactionInput) (domain.Transaction, error) {
+	loc, err := time.LoadLocation("America/Sao_Paulo")
+	if err != nil {
+		return domain.Transaction{}, err
+	}
+
 	transaction := domain.Transaction{
 		ID:        uuid.NewString(),
 		Name:      input.Name,
 		Amount:    input.Amount,
 		Type:      domain.Type(input.Type),
-		CreatedAt: time.Now(),
+		CreatedAt: time.Now().In(loc),
 	}
 
 	if err := transaction.Validate(); err != nil {
 		return transaction, err
 	}
 
-	transaction, err := uc.repo.Create(transaction)
+	transaction, err = uc.repo.Create(transaction)
 	if err != nil {
 		return transaction, err
 	}

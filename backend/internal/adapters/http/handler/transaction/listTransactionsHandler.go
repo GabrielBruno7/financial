@@ -18,7 +18,21 @@ func NewListTransactionsHandler(
 }
 
 func (h *ListTransactionsHandler) Handle(c *gin.Context) {
-	transactions, err := h.useCase.Execute()
+	var dto ListTransactionDTO
+	if err := c.ShouldBindQuery(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	input := usecaseTransaction.ListTransactionsInput{
+		StartDate: dto.StartDate,
+		EndDate:   dto.EndDate,
+	}
+
+	transactions, err := h.useCase.Execute(input)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": "Failed to list transactions",

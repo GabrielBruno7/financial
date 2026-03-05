@@ -14,6 +14,9 @@ const (
 
 var (
 	ErrNameRequired           = errors.New("Name is required")
+	ErrInvalidStartDate       = errors.New("Invalid start date format, expected YYYY-MM-DD")
+	ErrInvalidEndDate         = errors.New("Invalid end date format, expected YYYY-MM-DD")
+	ErrInvalidDateRange       = errors.New("Start date must be before end date")
 	ErrNameTooLong            = errors.New("Name must be less than 256 characters")
 	ErrInvalidAmount          = errors.New("Amount must be greater than zero")
 	ErrInvalidTransactionType = errors.New("Transaction type must be income or expense")
