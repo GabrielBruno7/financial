@@ -15,13 +15,19 @@ type ListTransactionsInput struct {
 	EndDate   string
 }
 
+type ListTransactionsOutput struct {
+	Summary      domain.Summary
+	Transactions []domain.Transaction
+}
+
 func NewListTransactionsUseCase(repo persistencePort.TransactionRepositoryInterface) *ListTransactionsUseCase {
 	return &ListTransactionsUseCase{repo: repo}
 }
-func (uc *ListTransactionsUseCase) Execute(input ListTransactionsInput) ([]domain.Transaction, error) {
+
+func (uc *ListTransactionsUseCase) Execute(input ListTransactionsInput) (ListTransactionsOutput, error) {
 	startDate, endDate, err := validateDateFilters(input.StartDate, input.EndDate)
 	if err != nil {
-		return nil, err
+		return ListTransactionsOutput{}, err
 	}
 
 	filter := persistencePort.TransactionListFilter{
@@ -31,10 +37,30 @@ func (uc *ListTransactionsUseCase) Execute(input ListTransactionsInput) ([]domai
 
 	transactions, err := uc.repo.List(filter)
 	if err != nil {
-		return nil, err
+		return ListTransactionsOutput{}, err
 	}
 
-	return transactions, nil
+	return ListTransactionsOutput{
+		Transactions: transactions,
+		Summary:      buildSummary(transactions),
+	}, nil
+}
+
+func buildSummary(transactions []domain.Transaction) domain.Summary {
+	summary := domain.Summary{}
+
+	for _, transaction := range transactions {
+		switch transaction.Type {
+		case domain.TypeIncome:
+			summary.TotalIncome += transaction.Amount
+		case domain.TypeExpense:
+			summary.TotalExpense += transaction.Amount
+		}
+	}
+
+	summary.Balance = summary.TotalIncome - summary.TotalExpense
+
+	return summary
 }
 
 func validateDateFilters(startStr, endStr string) (*time.Time, *time.Time, error) {

@@ -32,7 +32,7 @@ func (h *ListTransactionsHandler) Handle(c *gin.Context) {
 		EndDate:   dto.EndDate,
 	}
 
-	transactions, err := h.useCase.Execute(input)
+	transactionsOutput, err := h.useCase.Execute(input)
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": "Failed to list transactions",
@@ -42,6 +42,7 @@ func (h *ListTransactionsHandler) Handle(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"transactions": transactions,
+		"summary" : transactionsOutput.Summary,
+		"transactions": transactionsOutput.Transactions,
 	})
 }
