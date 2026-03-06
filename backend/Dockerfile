@@ -12,13 +12,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN chmod +x /app/entrypoint.sh
-
 RUN go install github.com/go-delve/delve/cmd/dlv@v1.25
 EXPOSE 2345
 
 RUN apt-get update && apt-get install -y postgresql-client curl && rm -rf /var/lib/apt/lists/*
-
-ENTRYPOINT ["/app/entrypoint.sh"]
 
 CMD ["air"]

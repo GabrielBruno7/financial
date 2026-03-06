@@ -1,13 +1,10 @@
 package main
 
 import (
-	billHandler "financial/internal/adapters/http/handler/bill"
 	transactionHandler "financial/internal/adapters/http/handler/transaction"
 	"financial/internal/adapters/http/router"
-	billRepository "financial/internal/adapters/repository/bill"
 	"financial/internal/adapters/repository/database"
 	transactionRepository "financial/internal/adapters/repository/transaction"
-	usecaseBill "financial/internal/core/usecase/bill"
 	usecaseTransaction "financial/internal/core/usecase/transaction"
 	"log"
 
@@ -29,21 +26,10 @@ func main() {
 	listTransactionsUseCase := usecaseTransaction.NewListTransactionsUseCase(transactionRepository)
 	listTransactionsHandler := transactionHandler.NewListTransactionsHandler(listTransactionsUseCase)
 
-	billRepository := billRepository.NewBillRepository(db)
-	createBillUseCase := usecaseBill.NewCreateBillUseCase(billRepository)
-	createBillHandler := billHandler.NewCreateBillHandler(createBillUseCase)
-
-	listBillsUseCase := usecaseBill.NewListBillsUseCase(billRepository)
-	listBillsHandler := billHandler.NewListBillsHandler(listBillsUseCase)
-
 	handlers := router.Handlers{
 		Transactions: router.TransactionHandlers{
 			Create: createTransactionHandler,
 			List:   listTransactionsHandler,
-		},
-		Bills: router.BillHandlers{
-			Create: createBillHandler,
-			List:   listBillsHandler,
 		},
 	}
 
