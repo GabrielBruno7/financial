@@ -64,7 +64,8 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - financial-network
     restart: unless-stopped
