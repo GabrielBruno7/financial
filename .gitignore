@@ -26,3 +26,11 @@ backup_*.sql
 
 docker-data/
 postgres-data/
+
+node_modules/
+dist/
+.env
+frontend/node_modules/
+frontend/dist/
+backend/tmp/
+.air.toml
