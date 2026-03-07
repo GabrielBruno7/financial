@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     name VARCHAR(255) NOT NULL DEFAULT '',
     amount DECIMAL(10,2) NOT NULL CHECK (amount > 0),
     type VARCHAR(20) NOT NULL CHECK (type IN ('income', 'expense')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
 );
 

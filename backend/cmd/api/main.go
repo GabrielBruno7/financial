@@ -6,6 +6,9 @@ import (
 	"financial/internal/adapters/repository/database"
 	transactionRepository "financial/internal/adapters/repository/transaction"
 	usecaseTransaction "financial/internal/core/usecase/transaction"
+	billHandler "financial/internal/adapters/http/handler/bill"
+	billRepository "financial/internal/adapters/repository/bill"
+	usecaseBill "financial/internal/core/usecase/bill"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -26,10 +29,21 @@ func main() {
 	listTransactionsUseCase := usecaseTransaction.NewListTransactionsUseCase(transactionRepository)
 	listTransactionsHandler := transactionHandler.NewListTransactionsHandler(listTransactionsUseCase)
 
+	billRepository := billRepository.NewBillRepository(db)
+	createBillUseCase := usecaseBill.NewCreateBillUseCase(billRepository)
+	createBillHandler := billHandler.NewCreateBillHandler(createBillUseCase)
+
+	listBillsUseCase := usecaseBill.NewListBillsUseCase(billRepository)
+	listBillsHandler := billHandler.NewListBillsHandler(listBillsUseCase)
+
 	handlers := router.Handlers{
 		Transactions: router.TransactionHandlers{
 			Create: createTransactionHandler,
 			List:   listTransactionsHandler,
+		},
+		Bills: router.BillHandlers{
+			Create: createBillHandler,
+			List:   listBillsHandler,
 		},
 	}
 
