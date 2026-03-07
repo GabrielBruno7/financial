@@ -34,6 +34,7 @@ type RecentTransactionsProps = {
     amount: number;
     type: TransactionType;
   }) => Promise<void>;
+  hideAmounts?: boolean;
 };
 
 const ITEMS_PER_PAGE = 6;
@@ -51,6 +52,7 @@ function formatDate(t: Transaction) {
 const RecentTransactions = ({
   transactions,
   onCreateTransaction,
+  hideAmounts = false,
 }: RecentTransactionsProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -126,7 +128,7 @@ const RecentTransactions = ({
       className="rounded-2xl border border-border bg-card p-6 opacity-0 animate-fade-in"
       style={{ animationDelay: "0.4s" }}
     >
-      <div className="flex items-center justify-between mb-5 gap-3">
+      <div className="mb-5 flex items-center justify-between gap-3">
         <h2 className="text-base font-display font-semibold text-foreground">
           Transações Recentes
         </h2>
@@ -140,7 +142,7 @@ const RecentTransactions = ({
         >
           <DialogTrigger asChild>
             <Button className="rounded-xl">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4" />
               Nova transação
             </Button>
           </DialogTrigger>
@@ -219,23 +221,23 @@ const RecentTransactions = ({
           return (
             <div
               key={t.id}
-              className="flex items-center justify-between p-3 rounded-xl hover:bg-secondary transition-colors"
+              className="flex items-center justify-between rounded-xl p-3 transition-colors hover:bg-secondary"
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex min-w-0 items-center gap-3">
                 <div
-                  className={`p-2 rounded-lg shrink-0 ${
+                  className={`shrink-0 rounded-lg p-2 ${
                     isIncome ? "bg-income/10" : "bg-expense/10"
                   }`}
                 >
                   {isIncome ? (
-                    <ArrowDownLeft className="w-4 h-4 text-income" />
+                    <ArrowDownLeft className="h-4 w-4 text-income" />
                   ) : (
-                    <ArrowUpRight className="w-4 h-4 text-expense" />
+                    <ArrowUpRight className="h-4 w-4 text-expense" />
                   )}
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
+                  <p className="truncate text-sm font-medium text-foreground">
                     {t.name}
                   </p>
                   <p className="text-xs text-muted-foreground">{date}</p>
@@ -243,11 +245,13 @@ const RecentTransactions = ({
               </div>
 
               <p
-                className={`text-sm font-semibold ml-3 shrink-0 ${
+                className={`ml-3 shrink-0 text-sm font-semibold ${
                   isIncome ? "text-income" : "text-expense"
                 }`}
               >
-                {isIncome ? "+" : "-"} {formatAmount(t.amount)}
+                {hideAmounts
+                  ? `${isIncome ? "+" : "-"} R$ •••••`
+                  : `${isIncome ? "+" : "-"} ${formatAmount(t.amount)}`}
               </p>
             </div>
           );
@@ -268,7 +272,7 @@ const RecentTransactions = ({
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
+              <ChevronLeft className="mr-1 h-4 w-4" />
               Anterior
             </Button>
 
@@ -280,7 +284,7 @@ const RecentTransactions = ({
               disabled={page === totalPages}
             >
               Próxima
-              <ChevronRight className="w-4 h-4 ml-1" />
+              <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           </div>
         </div>

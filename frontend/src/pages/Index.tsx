@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, Bell, Search } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Bell,
+  Search,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import SummaryCard from "@/components/dashboard/SummaryCard";
@@ -19,6 +26,11 @@ const Index = () => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [hideAmounts, setHideAmounts] = useState(() => {
+    const saved = localStorage.getItem("hideAmounts");
+    return saved === "true";
+  });
 
   const refresh = async () => {
     try {
@@ -43,6 +55,10 @@ const Index = () => {
     refresh();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("hideAmounts", String(hideAmounts));
+  }, [hideAmounts]);
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border px-6 py-4">
@@ -57,6 +73,18 @@ const Index = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setHideAmounts((prev) => !prev)}
+              className="p-2.5 rounded-xl bg-secondary hover:bg-accent transition-colors"
+              title={hideAmounts ? "Mostrar valores" : "Esconder valores"}
+            >
+              {hideAmounts ? (
+                <EyeOff className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <Eye className="w-4 h-4 text-muted-foreground" />
+              )}
+            </button>
+
             <button className="p-2.5 rounded-xl bg-secondary hover:bg-accent transition-colors">
               <Search className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -78,7 +106,10 @@ const Index = () => {
 
         {data && (
           <>
-            <BalanceCard balance={data.summary.balance} />
+            <BalanceCard
+              balance={data.summary.balance}
+              hideAmounts={hideAmounts}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <SummaryCard
@@ -87,6 +118,7 @@ const Index = () => {
                 icon={TrendingUp}
                 type="income"
                 delay="0.1s"
+                hideAmounts={hideAmounts}
               />
 
               <SummaryCard
@@ -95,11 +127,16 @@ const Index = () => {
                 icon={TrendingDown}
                 type="expense"
                 delay="0.2s"
+                hideAmounts={hideAmounts}
               />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-              <UpcomingBills bills={bills} onBillsChanged={refresh} />
+              <UpcomingBills
+                bills={bills}
+                onBillsChanged={refresh}
+                hideAmounts={hideAmounts}
+              />
 
               <RecentTransactions
                 transactions={data.transactions}
@@ -107,6 +144,7 @@ const Index = () => {
                   await createTransaction(payload);
                   await refresh();
                 }}
+                hideAmounts={hideAmounts}
               />
             </div>
           </>

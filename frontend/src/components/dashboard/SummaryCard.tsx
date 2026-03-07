@@ -1,32 +1,42 @@
-import { LucideIcon } from "lucide-react";
-
-interface SummaryCardProps {
+type SummaryCardProps = {
   title: string;
   value: number;
-  icon: LucideIcon;
+  icon: any;
   type: "income" | "expense";
   delay?: string;
-}
+  hideAmounts?: boolean;
+};
 
-const SummaryCard = ({ title, value, icon: Icon, type, delay = "0s" }: SummaryCardProps) => {
-  const colorClass = type === "income" ? "text-income" : "text-expense";
-  const bgClass = type === "income" ? "bg-income/10" : "bg-expense/10";
-  const borderClass = type === "income" ? "border-income/15" : "border-expense/15";
+const SummaryCard = ({
+  title,
+  value,
+  icon: Icon,
+  type,
+  delay,
+  hideAmounts = false,
+}: SummaryCardProps) => {
+  const formatted = value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 
   return (
     <div
-      className={`rounded-2xl border ${borderClass} bg-card p-5 opacity-0 animate-fade-in`}
+      className="rounded-2xl border border-border bg-card p-6"
       style={{ animationDelay: delay }}
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-muted-foreground font-medium">{title}</span>
-        <div className={`p-2 rounded-xl ${bgClass}`}>
-          <Icon className={`w-4 h-4 ${colorClass}`} />
-        </div>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">{title}</p>
+        <Icon className="w-4 h-4 text-muted-foreground" />
       </div>
-      <p className={`text-2xl font-display font-bold ${colorClass}`}>
-        R$ {value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-      </p>
+
+      <h3
+        className={`mt-4 text-2xl font-bold ${
+          type === "income" ? "text-income" : "text-expense"
+        }`}
+      >
+        {hideAmounts ? "R$ •••••" : formatted}
+      </h3>
     </div>
   );
 };
