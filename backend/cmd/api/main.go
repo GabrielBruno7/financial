@@ -1,53 +1,15 @@
 package main
 
 import (
-	transactionHandler "financial/internal/adapters/http/handler/transaction"
-	"financial/internal/adapters/http/router"
-	"financial/internal/adapters/repository/database"
-	transactionRepository "financial/internal/adapters/repository/transaction"
-	usecaseTransaction "financial/internal/core/usecase/transaction"
-	billHandler "financial/internal/adapters/http/handler/bill"
-	billRepository "financial/internal/adapters/repository/bill"
-	usecaseBill "financial/internal/core/usecase/bill"
+	"financial/internal/bootstrap"
 	"log"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	engine := gin.Default()
-
-	db, err := database.NewPostgresConnection()
+	engine, err := bootstrap.NewHTTPServer()
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		log.Fatalf("failed to bootstrap application: %v", err)
 	}
-
-	transactionRepository := transactionRepository.NewTransactionRepository(db)
-	createTransactionUseCase := usecaseTransaction.NewCreateTransactionUseCase(transactionRepository)
-	createTransactionHandler := transactionHandler.NewCreateTransactionHandler(createTransactionUseCase)
-
-	listTransactionsUseCase := usecaseTransaction.NewListTransactionsUseCase(transactionRepository)
-	listTransactionsHandler := transactionHandler.NewListTransactionsHandler(listTransactionsUseCase)
-
-	billRepository := billRepository.NewBillRepository(db)
-	createBillUseCase := usecaseBill.NewCreateBillUseCase(billRepository)
-	createBillHandler := billHandler.NewCreateBillHandler(createBillUseCase)
-
-	listBillsUseCase := usecaseBill.NewListBillsUseCase(billRepository)
-	listBillsHandler := billHandler.NewListBillsHandler(listBillsUseCase)
-
-	handlers := router.Handlers{
-		Transactions: router.TransactionHandlers{
-			Create: createTransactionHandler,
-			List:   listTransactionsHandler,
-		},
-		Bills: router.BillHandlers{
-			Create: createBillHandler,
-			List:   listBillsHandler,
-		},
-	}
-
-	router.RegisterRoutes(engine, handlers)
 
 	log.Println("server running on :9000")
 

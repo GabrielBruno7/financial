@@ -11,14 +11,15 @@ type Bill struct {
 	Amount    float64
 	IsPaid    bool
 	CreatedAt time.Time
+	UpdatedAt *time.Time
 }
 
 var (
-	ErrNameRequired           = errors.New("Name is required")
-	ErrNameTooLong            = errors.New("Name must be less than 256 characters")
-	ErrInvalidAmount          = errors.New("Amount must be greater than zero")
-	ErrInvalidIsPaid          = errors.New("Is Paid must be true or false")
-	ErrInvalidDate            = errors.New("Invalid date")
+	ErrNameRequired  = errors.New("Name is required")
+	ErrNameTooLong   = errors.New("Name must be less than 256 characters")
+	ErrInvalidAmount = errors.New("Amount must be greater than zero")
+	ErrInvalidIsPaid = errors.New("Is Paid must be true or false")
+	ErrInvalidDate   = errors.New("Invalid date")
 )
 
 func (b Bill) Validate() error {

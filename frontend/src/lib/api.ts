@@ -149,12 +149,12 @@ export async function createBill(input: { name: string; amount: number }) {
 }
 
 export async function updateBillStatus(id: string, isPaid: boolean) {
-  const res = await fetch(`/api/bills/${id}`, {
+  const res = await fetch(`/api/bills/${id}/update-status`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ isPaid }),
+    body: JSON.stringify({ is_paid: isPaid }),
   });
 
   const data = await res.json().catch(() => null);

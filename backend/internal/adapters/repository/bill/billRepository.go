@@ -2,7 +2,6 @@ package bill
 
 import (
 	domain "financial/internal/core/domain/bill"
-	"financial/package/debug"
 
 	"gorm.io/gorm"
 )
@@ -26,8 +25,6 @@ func (r *BillRepository) Create(bill domain.Bill) (domain.Bill, error) {
 		VALUES ($1, $2, $3, $4)
 	`
 
-	debug.Print("Creating bill", bill)
-
 	if err := r.db.Exec(query,
 		bill.ID,
 		bill.Name,
@@ -44,10 +41,10 @@ func (r *BillRepository) List() ([]domain.Bill, error) {
 	var models []BillModel
 
 	query := `
-		       SELECT id, name, amount, is_paid, created_at
-		       FROM bills
-		       ORDER BY created_at DESC
-	       `
+		SELECT id, name, amount, is_paid, created_at
+		FROM bills
+		ORDER BY created_at DESC
+	`
 
 	if err := r.db.Raw(query).Scan(&models).Error; err != nil {
 		return nil, err
@@ -65,4 +62,66 @@ func (r *BillRepository) List() ([]domain.Bill, error) {
 	}
 
 	return bills, nil
+}
+
+func (r *BillRepository) LoadBillByID(bill domain.Bill) (domain.Bill, error) {
+	var model BillModel
+
+	query := `
+		SELECT id, name, amount, is_paid, created_at, updated_at
+		FROM bills
+		WHERE id = $1
+		LIMIT 1
+	`
+
+	if err := r.db.Raw(query, bill.ID).Scan(&model).Error; err != nil {
+		return domain.Bill{}, err
+	}
+
+	if model.ID == "" {
+		return domain.Bill{}, gorm.ErrRecordNotFound
+	}
+
+	return domain.Bill{
+		ID:        model.ID,
+		Name:      model.Name,
+		Amount:    model.Amount,
+		IsPaid:    model.IsPaid,
+		CreatedAt: model.CreatedAt,
+		UpdatedAt: model.UpdatedAt,
+	}, nil
+}
+
+func (r *BillRepository) UpdateStatus(bill domain.Bill) (domain.Bill, error) {
+	query := `
+		UPDATE bills
+		SET is_paid = $1,
+		    updated_at = NOW()
+		WHERE id = $2
+	`
+
+	if err := r.db.Exec(query, bill.IsPaid, bill.ID).Error; err != nil {
+		return domain.Bill{}, err
+	}
+
+	var model BillModel
+
+	selectQuery := `
+		SELECT id, name, amount, is_paid, created_at, updated_at
+		FROM bills
+		WHERE id = $1
+	`
+
+	if err := r.db.Raw(selectQuery, bill.ID).Scan(&model).Error; err != nil {
+		return domain.Bill{}, err
+	}
+
+	return domain.Bill{
+		ID:        model.ID,
+		Name:      model.Name,
+		Amount:    model.Amount,
+		IsPaid:    model.IsPaid,
+		CreatedAt: model.CreatedAt,
+		UpdatedAt: model.UpdatedAt,
+	}, nil
 }

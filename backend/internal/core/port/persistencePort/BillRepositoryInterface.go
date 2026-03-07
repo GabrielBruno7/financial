@@ -7,4 +7,6 @@ import (
 type BillRepositoryInterface interface {
 	Create(bill domain.Bill) (domain.Bill, error)
 	List() ([]domain.Bill, error)
+	UpdateStatus(bill domain.Bill) (domain.Bill, error)
+	LoadBillByID(bill domain.Bill) (domain.Bill, error)
 }

@@ -7,8 +7,9 @@ import (
 )
 
 type BillHandlers struct {
-	Create *billHandler.CreateBillHandler
-	List   *billHandler.ListBillsHandler
+	Create       *billHandler.CreateBillHandler
+	List         *billHandler.ListBillsHandler
+	UpdateStatus *billHandler.UpdateBillStatusHandler
 }
 
 func registerBillRoutes(engine *gin.Engine, handlers BillHandlers) {
@@ -16,5 +17,6 @@ func registerBillRoutes(engine *gin.Engine, handlers BillHandlers) {
 	{
 		bills.POST("", handlers.Create.Handle)
 		bills.GET("", handlers.List.Handle)
+		bills.PATCH("/:id/update-status", handlers.UpdateStatus.Handle)
 	}
 }
