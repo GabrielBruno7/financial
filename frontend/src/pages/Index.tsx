@@ -6,7 +6,14 @@ import SummaryCard from "@/components/dashboard/SummaryCard";
 import UpcomingBills from "@/components/dashboard/UpcomingBills";
 import RecentTransactions from "@/components/dashboard/RecentTransactions";
 
-import { listTransactions, createTransaction, type ListTransactionsResponse, type TransactionType } from "@/lib/api";
+import {
+  listTransactions,
+  createTransaction,
+  listBills,
+  type ListTransactionsResponse,
+  type TransactionType,
+  type Bill,
+} from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -16,10 +23,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const Index = () => {
   const [data, setData] = useState<ListTransactionsResponse | null>(null);
+  const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // modal state
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [type, setType] = useState<TransactionType>("expense");
@@ -31,10 +38,16 @@ const Index = () => {
     try {
       setError(null);
       setLoading(true);
-      const res = await listTransactions();
-      setData(res);
+
+      const [transactionsRes, billsRes] = await Promise.all([
+        listTransactions(),
+        listBills(),
+      ]);
+
+      setData(transactionsRes);
+      setBills(billsRes.bills);
     } catch (e: any) {
-      setError(e?.message ?? "Erro ao buscar transações");
+      setError(e?.message ?? "Erro ao buscar dados");
     } finally {
       setLoading(false);
     }
@@ -42,7 +55,6 @@ const Index = () => {
 
   useEffect(() => {
     refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const formatBRL = (cents: number) =>
@@ -59,10 +71,15 @@ const Index = () => {
       setSaving(true);
 
       const value = amountCents / 100;
+
       if (!name.trim()) throw new Error("Nome é obrigatório");
       if (!Number.isFinite(value) || value <= 0) throw new Error("Valor inválido");
 
-      await createTransaction({ name: name.trim(), amount: value, type });
+      await createTransaction({
+        name: name.trim(),
+        amount: value,
+        type,
+      });
 
       setOpen(false);
       setName("");
@@ -87,7 +104,6 @@ const Index = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Nova transação */}
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button className="rounded-xl">
@@ -104,7 +120,11 @@ const Index = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Nome</Label>
-                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Supermercado" />
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Ex: Supermercado"
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
@@ -146,12 +166,10 @@ const Index = () => {
               </DialogContent>
             </Dialog>
 
-            {/* Search */}
             <button className="p-2.5 rounded-xl bg-secondary hover:bg-accent transition-colors">
               <Search className="w-4 h-4 text-muted-foreground" />
             </button>
 
-            {/* Bell */}
             <button className="p-2.5 rounded-xl bg-secondary hover:bg-accent transition-colors relative">
               <Bell className="w-4 h-4 text-muted-foreground" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />
@@ -169,12 +187,24 @@ const Index = () => {
             <BalanceCard balance={data.summary.balance} />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <SummaryCard title="Total Entradas" value={data.summary.totalIncome} icon={TrendingUp} type="income" delay="0.1s" />
-              <SummaryCard title="Total Saídas" value={data.summary.totalExpense} icon={TrendingDown} type="expense" delay="0.2s" />
+              <SummaryCard
+                title="Total Entradas"
+                value={data.summary.totalIncome}
+                icon={TrendingUp}
+                type="income"
+                delay="0.1s"
+              />
+              <SummaryCard
+                title="Total Saídas"
+                value={data.summary.totalExpense}
+                icon={TrendingDown}
+                type="expense"
+                delay="0.2s"
+              />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <UpcomingBills />
+              <UpcomingBills bills={bills} onBillCreated={refresh} />
               <RecentTransactions transactions={data.transactions} />
             </div>
           </>
