@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, Bell, Search, Plus } from "lucide-react";
+import { TrendingUp, TrendingDown, Bell, Search } from "lucide-react";
 
 import BalanceCard from "@/components/dashboard/BalanceCard";
 import SummaryCard from "@/components/dashboard/SummaryCard";
@@ -11,7 +11,6 @@ import {
   createTransaction,
   listBills,
   type ListTransactionsResponse,
-  type TransactionType,
   type Bill,
 } from "@/lib/api";
 
@@ -20,13 +19,6 @@ const Index = () => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [type, setType] = useState<TransactionType>("expense");
-  const [amountCents, setAmountCents] = useState(0);
-  const [saving, setSaving] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
 
   const refresh = async () => {
     try {
@@ -56,13 +48,19 @@ const Index = () => {
       <header className="border-b border-border px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Olá, bem-vindo de volta 👋</p>
-            <h1 className="text-xl font-display font-bold text-foreground">Meu Dashboard</h1>
+            <p className="text-sm text-muted-foreground">
+              Olá, bem-vindo de volta 👋
+            </p>
+            <h1 className="text-xl font-display font-bold text-foreground">
+              Meu Dashboard
+            </h1>
           </div>
+
           <div className="flex items-center gap-3">
             <button className="p-2.5 rounded-xl bg-secondary hover:bg-accent transition-colors">
               <Search className="w-4 h-4 text-muted-foreground" />
             </button>
+
             <button className="p-2.5 rounded-xl bg-secondary hover:bg-accent transition-colors relative">
               <Bell className="w-4 h-4 text-muted-foreground" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full" />
@@ -72,7 +70,10 @@ const Index = () => {
       </header>
 
       <main className="max-w-6xl mx-auto p-6 space-y-6">
-        {loading && <div className="text-sm text-muted-foreground">Carregando...</div>}
+        {loading && (
+          <div className="text-sm text-muted-foreground">Carregando...</div>
+        )}
+
         {error && <div className="text-sm text-red-500">{error}</div>}
 
         {data && (
@@ -87,6 +88,7 @@ const Index = () => {
                 type="income"
                 delay="0.1s"
               />
+
               <SummaryCard
                 title="Total Saídas"
                 value={data.summary.totalExpense}
@@ -96,8 +98,9 @@ const Index = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               <UpcomingBills bills={bills} onBillsChanged={refresh} />
+
               <RecentTransactions
                 transactions={data.transactions}
                 onCreateTransaction={async (payload) => {
