@@ -32,7 +32,6 @@ const UpcomingBills = ({ bills, onBillsChanged }: Props) => {
 
   const onTogglePaid = async (bill: Bill) => {
     try {
-      setError(null);
       setUpdatingId(bill.id);
       await updateBillStatus(bill.id, !bill.isPaid);
       await onBillsChanged?.();
