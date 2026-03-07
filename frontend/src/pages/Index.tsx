@@ -204,7 +204,7 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <UpcomingBills bills={bills} onBillCreated={refresh} />
+              <UpcomingBills bills={bills} onBillsChanged={refresh} />
               <RecentTransactions transactions={data.transactions} />
             </div>
           </>

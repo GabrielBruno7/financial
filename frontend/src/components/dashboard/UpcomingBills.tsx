@@ -1,35 +1,64 @@
 import { useMemo, useState } from "react";
-import { CalendarClock, CreditCard, FileText, Plus, CheckCircle2, Undo2 } from "lucide-react";
+import {
+  CalendarClock,
+  CreditCard,
+  FileText,
+  Plus,
+  CheckCircle2,
+  Undo2,
+  ArrowRight,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { createBill, updateBillStatus, type Bill } from "@/lib/api";
+import { createBill, createTransaction, updateBillStatus, type Bill } from "@/lib/api";
 
 type Props = {
   bills: Bill[];
-  onBillCreated?: () => Promise<void> | void;
+  onBillsChanged?: () => Promise<void> | void;
 };
 
-const UpcomingBills = ({ bills, onBillCreated }: Props) => {
+const UpcomingBills = ({ bills, onBillsChanged }: Props) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [amountCents, setAmountCents] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [creatingExpenseId, setCreatingExpenseId] = useState<string | null>(null);
 
   const onTogglePaid = async (bill: Bill) => {
     try {
+      setError(null);
       setUpdatingId(bill.id);
       await updateBillStatus(bill.id, !bill.isPaid);
-      await onBillCreated?.();
+      await onBillsChanged?.();
     } catch (e: any) {
       setError(e?.message ?? "Erro ao atualizar conta");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const onCreateExpenseFromBill = async (bill: Bill) => {
+    try {
+      setError(null);
+      setCreatingExpenseId(bill.id);
+
+      await createTransaction({
+        name: bill.name,
+        amount: bill.amount,
+        type: "expense",
+      });
+
+      await onBillsChanged?.();
+    } catch (e: any) {
+      setError(e?.message ?? "Erro ao lançar conta como despesa");
+    } finally {
+      setCreatingExpenseId(null);
     }
   };
 
@@ -91,7 +120,7 @@ const UpcomingBills = ({ bills, onBillCreated }: Props) => {
       setName("");
       setAmountCents(0);
 
-      await onBillCreated?.();
+      await onBillsChanged?.();
     } catch (e: any) {
       setError(e?.message ?? "Erro ao criar conta");
     } finally {
@@ -164,6 +193,8 @@ const UpcomingBills = ({ bills, onBillCreated }: Props) => {
         </div>
       </div>
 
+      {error && <p className="mb-3 text-sm text-red-500">{error}</p>}
+
       <div className="space-y-3">
         {bills.length === 0 && (
           <div className="rounded-xl bg-secondary p-4 text-sm text-muted-foreground">
@@ -194,37 +225,51 @@ const UpcomingBills = ({ bills, onBillCreated }: Props) => {
                 </div>
               </div>
 
-            <div className="text-right flex flex-col items-end gap-1">
-              <p className="text-sm font-semibold text-foreground">
-                {formatAmount(bill.amount)}
-              </p>
+              <div className="text-right flex flex-col items-end gap-1">
+                <p className="text-sm font-semibold text-foreground">
+                  {formatAmount(bill.amount)}
+                </p>
 
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-xs font-medium ${
-                    bill.isPaid ? "text-primary" : "text-yellow-500"
-                  }`}
-                >
-                  {bill.isPaid ? "Pago" : "Pendente"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-xs font-medium ${
+                      bill.isPaid ? "text-primary" : "text-yellow-500"
+                    }`}
+                  >
+                    {bill.isPaid ? "Pago" : "Pendente"}
+                  </span>
 
-                <button
-                  type="button"
-                  onClick={() => onTogglePaid(bill)}
-                  disabled={updatingId === bill.id}
-                  className="p-1.5 rounded-lg bg-muted hover:bg-accent transition-colors disabled:opacity-50"
-                  title={bill.isPaid ? "Marcar como pendente" : "Marcar como pago"}
-                >
-                  {updatingId === bill.id ? (
-                    <span className="text-[10px] text-muted-foreground px-1">...</span>
-                  ) : bill.isPaid ? (
-                    <Undo2 className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <CheckCircle2 className="w-4 h-4 text-primary" />
-                  )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => onCreateExpenseFromBill(bill)}
+                    disabled={creatingExpenseId === bill.id}
+                    className="p-1.5 rounded-lg bg-muted hover:bg-accent transition-colors disabled:opacity-50"
+                    title="Lançar como despesa"
+                  >
+                    {creatingExpenseId === bill.id ? (
+                      <span className="text-[10px] text-muted-foreground px-1">...</span>
+                    ) : (
+                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onTogglePaid(bill)}
+                    disabled={updatingId === bill.id}
+                    className="p-1.5 rounded-lg bg-muted hover:bg-accent transition-colors disabled:opacity-50"
+                    title={bill.isPaid ? "Marcar como pendente" : "Marcar como pago"}
+                  >
+                    {updatingId === bill.id ? (
+                      <span className="text-[10px] text-muted-foreground px-1">...</span>
+                    ) : bill.isPaid ? (
+                      <Undo2 className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4 text-primary" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
             </div>
           );
         })}
